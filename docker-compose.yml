@@ -1,0 +1,40 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: devops_backend
+    command: gunicorn --bind 0.0.0.0:8000 devops_consultancy.wsgi:application
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ./devops-frontend  # Corrected the directory name
+      dockerfile: ./Dockerfile  # Assuming the Dockerfile is inside the devops-frontend directory
+    container_name: devops_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:13
+    container_name: devops_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: devopsdb
+      POSTGRES_USER: devopsuser
+      POSTGRES_PASSWORD: devopspassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
